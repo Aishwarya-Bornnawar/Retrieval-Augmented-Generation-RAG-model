@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RAG Chatbot</title>
+    <style>
+        .container { max-width: 600px; margin: 0 auto; }
+        .chat-box { border: 1px solid #ccc; padding: 10px; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>RAG Chatbot</h1>
+        <form id="uploadForm">
+            <input type="file" id="fileInput" />
+            <button type="submit">Upload</button>
+        </form>
+        <div class="chat-box" id="chatBox">
+            <input type="text" id="chatInput" placeholder="Type your message here" />
+            <button type="button" onclick="sendMessage()">Send</button>
+            <div id="chatMessages"></div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('uploadForm').onsubmit = async function(event) {
+            event.preventDefault();
+            let file = document.getElementById('fileInput').files[0];
+            let formData = new FormData();
+            formData.append("file", file);
+
+            let response = await fetch('/api/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            alert(await response.text());
+        };
+
+        async function sendMessage() {
+            let message = document.getElementById('chatInput').value;
+            let response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query: message })
+            });
+
+            let result = await response.text();
+            let chatMessages = document.getElementById('chatMessages');
+            chatMessages.innerHTML += `<p>User: ${message}</p><p>Bot: ${result}</p>`;
+        }
+    </script>
+</body>
+</html>
